@@ -10,7 +10,7 @@
 }
 .frame{
 	margin-right: 10px;
-	height:150px;
+	height:100%;
 }
 #chatSpace{
 	text-align: center;
@@ -25,4 +25,14 @@ textarea{
 }
 #EnterText{
 	width: 400px;
+}
+.green{
+/*#009900*/
+border-style: solid;
+border-color:#009900;
+}
+.yellow{
+	/*#ffff00*/
+	border-style: solid;
+	border-color:#ffff00;
 }

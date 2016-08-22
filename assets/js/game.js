@@ -39,7 +39,9 @@ var chatRef;
 var name="";
 var wins = 0;
 var losses = 0;
-
+var move="";
+var otherPlayerMove="";
+var turn=1;
 //add the player to thier appopriate part of the board
 $("#addName").on("click", function () {
   $("#addName").hide();
@@ -50,13 +52,18 @@ $("#addName").on("click", function () {
   //erase the user's input
   $("#userName-input").val("");
   //push the name to the server
+  //along with the other initial information
   var con = ref;
   con.set({
     name: name,
     wins:wins,
     losses:losses,
-    move:"",
+    move:move,
   });
+  var con2=database.ref()
+  // con2.set({
+  //   turn:turn,
+  // })
   if (player==1) {
     $("#player1").text(name);
     $("#player1").append;
@@ -67,11 +74,20 @@ $("#addName").on("click", function () {
   }
 
   //when the person leaves the site remove them
-  con.onDisconnect().remove();
+  con.onDisconnect(onComplete).remove();
+  //con2.onDisconnect().remove()
   //dont refresh the page
   return false;
 })
 
+var onComplete = function(error) {
+  if (player==1) {
+    console.log(name+" has disconnected");
+  }
+  else if(player==2) {
+    console.log(name+" has disconnected");
+  }
+};
 //changeing the state of the player form one to two 
 //to keep and accurare log of who's who;
 function changePlayer(player){
@@ -83,6 +99,7 @@ function changePlayer(player){
     return 1;
   }
 }
+//this links the databast to the function PLayer handlerS
 database.ref().on("value",PlayerHandler);
 //this function will be called anytime a value is changed for the players branch
 //this function shoudl handle writing the players names to the appropriate box
@@ -133,22 +150,60 @@ function PlayerHandler(snapshot) {
   //add a reference of who you are to write info to
   ref= database.ref("Players/"+player);
   //.toString()
+  //check the number of children to if there are 2 players
+  console.log("number of children: "+snapshot.child("Players").numChildren());
+  console.log(snapshot.child("Players").val())
+  if(snapshot.child("Players").numChildren()==2)
+  { 
+    console.log("we now have 2 children");
+    playerValues=snapshot.child("Players/"+changePlayer(player)).val()
+    if((playerValues.move=="")&&(snapshot.child("Players/"+changePlayer(player)).val().move=="")){ 
+      //start the game
+      turn=1;
+      //add the coices for the individual (only display to them)
+      addchoices();
+      //display the current wins/losses for each player
+      playerValues=snapshot.child("Players/"+changePlayer(player)).val();
+      updateWinLoss(playerValues);
+      //change the player's border's color to yellow
+    }
+  }
 };
 
+//"winLoss1"
+//sets the win and loss count for each of the players
+function updateWinLoss(otherPlayer) {
+  $("#winLoss"+player).append($("<h5/>").text("Wins: "+wins+" Losses: "+losses)); 
+  $("#winLoss"+changePlayer(player)).append($("<h5/>").text("Wins: "+otherPlayer.wins+" Losses: "+otherPlayer.losses)); 
+
+}
+
+function addchoices(){
+  var choices=$("<div/>");
+  choices.append($("<h4/>").addClass("option").text("Rock"));
+  choices.append($("<h4/>").addClass("option").text("Paper"));
+  choices.append($("<h4/>").addClass("option").text("Scissors"));
+  $("#choices"+player).append(choices);
+}
+
 //this changes the values on the screen of the individual players
-database.ref().on("child_added", function(snapshot) {
-  console.log("number of children: "+snapshot.numChildren());
-  //console.log(snapshot.val());
+//this method should run after a child element has been edited
+database.ref().on("child_changed", function(snapshot) {
+  //console.log("number of children: "+snapshot.numChildren());
+  //console.log(snapshot.val())
+  //console.log(snapshot.child("Players").val())
   if(snapshot.numChildren()==2)
   {
     console.log("off for temp");
-    database.ref().off("value");
-    
+    //.removeClass("intro").addClass("main");
+
   }
   else{
-    console.log("off/on")
-    database.ref().off("value");
-    database.ref().on("value",PlayerHandler);
+    
   }
   
 });
+/*This might be relivent as i move into the gameplay
+  ref.on('child_changed', function(childSnapshot, prevChildKey) {
+  ...
+});*/
