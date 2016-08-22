@@ -5,27 +5,49 @@
 	<title>RPS Game With Others</title>
 
 	<link href="assets/css/reset.css" rel="stylesheet">
-	 <!-- Bootstrap Core CSS -->
-    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
-    <link href="assets/css/bootstrap.css" rel="stylesheet">
+	<!-- Bootstrap Core CSS -->
+	<link href="assets/css/bootstrap.min.css" rel="stylesheet">
+	<link href="assets/css/bootstrap.css" rel="stylesheet">
 	<link href="assets/css/style.css" rel="stylesheet">
 	<!-- Firebase Reference -->
 	<script src="https://www.gstatic.com/firebasejs/3.2.1/firebase.js"></script>
 </head>
 <body>
+	<div class="head">
+		<h1>Rock Paper Scissors</h1>
+	</div>
 	<div class="container">
-		<div class="head">
-			<h1>Hello</h1>
+		<div id="nameInput" class="row">
+			<input type="text" id="userName-input">
+			<input id="addName" type="submit" value="Input Name">
 		</div>
+		<div id="gameBoard" class="row">
+			<div class="thumbnail  col-xs-2 col-xs-offset-3 col-md-3 col-md-offset-1  frame">	<h3 id="player1">Waiting for Player 1</h3>
+				<div id="choices1"></div><br>
+				<div id="winLoss1"></div>
+			</div>
+			<div id="results" class="thumbnail col-xs-2 col-md-3 frame"></div>
+			<div class="thumbnail col-xs-2 col-md-3 frame">
+				<h3 id="player2">Waiting for Player 2</h3>
+				<div id="choices2"></div><br>
+				<div id="winLoss2"></div>
+			</div>
+		</div>
+		<div class="row" id="chatSpace">
+			<textarea disabled id="textbox"></textarea><br>
+			<input type="text" id="EnterText">
+			<input id="addText" type="submit" value="Submit">
+		</div>
+		
 	</div>
 
 
 	<!-- jQuery -->
-    <script src="assets/javascript/jquery.js"></script>
-    <!-- Bootstrap Core JavaScript -->
-    <script src="assets/javascript/bootstrap.min.js"></script>
-    <script src="assets/javascript/bootstrap.min.js"></script>
+	<script src="assets/js/jquery.js"></script>
+	<!-- Bootstrap Core JavaScript -->
+	<script src="assets/js/bootstrap.min.js"></script>
+	<script src="assets/js/bootstrap.min.js"></script>
 	<!-- My Code -->
-    <script src="assets/js/game.js"></script>
+	<script src="assets/js/game.js"></script>
 </body>
 </html>

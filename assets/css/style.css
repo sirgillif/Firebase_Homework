@@ -1,0 +1,28 @@
+.head h1{
+	text-align: center;
+}
+#nameInput{
+	text-align: center;
+	margin-bottom: 20px;
+}
+#gameBoard{
+	text-align: center;
+}
+.frame{
+	margin-right: 10px;
+	height:150px;
+}
+#chatSpace{
+	text-align: center;
+}
+textarea{
+	/*border: 1px solid;
+    padding: 20px;*/
+    height: 100px;
+    width: 500px;
+    resize: none;
+    overflow: auto;
+}
+#EnterText{
+	width: 400px;
+}
