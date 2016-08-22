@@ -34,17 +34,19 @@ var database = firebase.database();
 var player = 1;
 //create a sub header for the players
 var ref;
-
+var chatRef;
 //create the global variables
-
+var name="";
 var wins = 0;
 var losses = 0;
 
 //add the player to thier appopriate part of the board
 $("#addName").on("click", function () {
+  $("#addName").hide();
+  $("#userName-input").hide();
   //takes the name that the user inputed
-  var name= $("#userName-input").val().trim();
-  console.log(name);
+  name= $("#userName-input").val().trim();
+  //console.log(name);
   //erase the user's input
   $("#userName-input").val("");
   //push the name to the server
@@ -69,53 +71,84 @@ $("#addName").on("click", function () {
   //dont refresh the page
   return false;
 })
-database.ref().once("value", function(snapshot) {
-  console.log("doing once function");
-  if(snapshot.child("Players").exists()){
-    if(snapshot.child("Players").child(player).exists()){
-      $("#player1").text(snapshot.child("Players").child(player.toString()).name);
-      console.log(snapshot.child("Players").child(player.toString()).name);
 
-      player=2;
-    }
-    else{
-      $("#player2").text(snapshot.child("Players").child(player.toString()).name);
-      console.log(snapshot.child("Players").child(player.toString()).name);
-      player=1;
-
-      console.log(player);
-  }
+//changeing the state of the player form one to two 
+//to keep and accurare log of who's who;
+function changePlayer(player){
+  if(player==1)
+  {
+    return 2;
   }
   else{
-    player=1;
-    console.log(player);
+    return 1;
   }
-  ref= database.ref("Players/"+player.toString());
-});
+}
+database.ref().on("value",PlayerHandler);
+//this function will be called anytime a value is changed for the players branch
+//this function shoudl handle writing the players names to the appropriate box
+function PlayerHandler(snapshot) {
+  //creat a variable to extract values from 
+   //console.log("going into ref('Players').on function as "+player);
+  //if a player exists we need to verify who the person on the screen is
+  //console.log(snapshot.child("Players").exists());
+  if(snapshot.child("Players").exists()){
+    //IF a player exists with the player number you have
+    //console.log(snapshot.child("Players/"+player).exists());
+    if(snapshot.child("Players/"+player).exists()){
+      var playerValues=snapshot.child("Players/"+player).val();
+      //console.log(playerValues);
+      //if your name doent match thier name
+     //snapshot.child("Players/"+player).name;
+      if(playerValues.name!=name)
+      {
+        //write thier name on the board
+        $("#player"+player).text(playerValues.name);
+        //console.log(playerValues.name);
+        //change your player number
+        player=changePlayer(player);
+      }
+      //otherwise check if another player exists
+      else if(snapshot.child("Players/"+changePlayer(player)).exists())
+      {
+        playerValues=snapshot.child("Players/"+changePlayer(player)).val();
+        //if yes then we write their name to the board
+        $("#player"+changePlayer(player)).text(playerValues.name);
+        //console.log(playerValues.name);
+      }
+      //if no one exists rewrite the origional message for that person
+      else{
+        $("#player"+changePlayer(player)).text("Waiting for Player "+changePlayer(player));
+        //console.log("Waiting for Player "+changePlayer(player));
+      }
+    }
 
-/*//this changes the values on the screen of the individual players
+  }
+  else{
+    //if no players exist then you are player 1
+    player=1;
+    $("#player"+player).text("Waiting for Player "+player);
+    //console.log("Waiting for Player "+player);
+  }
+  //console.log(player);
+  //add a reference of who you are to write info to
+  ref= database.ref("Players/"+player);
+  //.toString()
+};
+
+//this changes the values on the screen of the individual players
 database.ref().on("child_added", function(snapshot) {
   console.log("number of children: "+snapshot.numChildren());
-  if(snapshot.numChildren()==1)
-  {
-
-    }
   //console.log(snapshot.val());
-  person=snapshot.val();
-  console.log(person);
-  personName=person.name;
-  console.log(personName);
-  //personName=snapshot.child("name").exist();
-  //console.log(personName);
-  //console.log(person.name);
-    //console.log(playerObject.PLayers.name);
-  snapshot.forEach(function(childSnapshot) {
-      //this gets the key for each child
-      var key = childSnapshot.key;
-      console.log("Child Key: "+key);
-      // childData will be the actual contents of the child
-      var childData = childSnapshot.val();
-      console.log("Child data: ")
-      console.log(childData.name );
-  });
-});*/
+  if(snapshot.numChildren()==2)
+  {
+    console.log("off for temp");
+    database.ref().off("value");
+    
+  }
+  else{
+    console.log("off/on")
+    database.ref().off("value");
+    database.ref().on("value",PlayerHandler);
+  }
+  
+});
