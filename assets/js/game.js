@@ -6,9 +6,9 @@
   --Go to site
   --entername and hit submit
   --wait for second player to do the same (If you are the first)
-  --on turn select move 
-    -the player who made the move should see thiers but not their opponents
-  --once each player has made their move
+  --on turn select word 
+    -the player who made the word should see thiers but not their opponents
+  --once each player has made their word
     -display moves
     -increment wins and losses (no limit to how long any two players can play)
   -- if a player leaves show disconnect log in the chat
@@ -17,6 +17,13 @@
   --chat
     -text box that stores conversation in firebase
     -maybe delete on no players
+
+    To Do
+   -------
+   -Chat Box Functionality
+   -make moves (change color to green when moves are made)
+   -record wins/losses
+   display information in middle tile
 */
 
 
@@ -39,8 +46,8 @@ var chatRef;
 var name="";
 var wins = 0;
 var losses = 0;
-var move="";
-var otherPlayerMove="";
+var word="none";
+var otherPlayerMove=" ";
 var turn=1;
 //add the player to thier appopriate part of the board
 $("#addName").on("click", function () {
@@ -58,7 +65,7 @@ $("#addName").on("click", function () {
     name: name,
     wins:wins,
     losses:losses,
-    move:move,
+    word:word,
   });
  
   if (player==1) {
@@ -76,16 +83,18 @@ $("#addName").on("click", function () {
   return false;
 })
 
-var onComplete = function(error) {
+var onComplete = function(value) {
     //clear the game if your in a game( or not it should be clearednow)
     $("#choices"+player).empty();
     $("#choices"+changePlayer(player)).empty();
     $("#winLoss"+player).empty();
     $("#winLoss"+changePlayer(player)).empty();
   if (player==1) {
+    // this will go to the chat box eventially
     console.log(name+" has disconnected");
   }
   else if(player==2) {
+    // this will go to the chat box eventially
     console.log(name+" has disconnected");
   }
 };
@@ -158,17 +167,18 @@ function PlayerHandler(snapshot) {
   { 
     console.log("we now have 2 children");
     playerValues=snapshot.child("Players/"+changePlayer(player)).val()
-    if((playerValues.move=="")&&(snapshot.child("Players/"+changePlayer(player)).val().move=="")){ 
+    console.log(playerValues);
+    if((playerValues.word=="none")&&(snapshot.child("Players/"+changePlayer(player)).val().word=="none")){ 
       //start the game
-      turn=1;
+      //turn=1;
       //add the coices for the individual (only display to them)
       addchoices();
       //display the current wins/losses for each player
       playerValues=snapshot.child("Players/"+changePlayer(player)).val();
       updateWinLoss(playerValues);
       //change the player's border's color to yellow
-      $("#player"+player).parent().addClass("yellow");
-      $("#player"+changePlayer(player)).parent().addClass("yellow");
+      $("#player"+player).parent().removeClass("green").addClass("yellow");
+      $("#player"+changePlayer(player)).parent().removeClass("green").addClass("yellow");
     }
   }
 };
@@ -192,18 +202,151 @@ function addchoices(){
 //this changes the values on the screen of the individual players
 //this method should run after a child element has been edited
 database.ref().on("child_changed", function(snapshot) {
-  //console.log("number of children: "+snapshot.numChildren());
-  //console.log(snapshot.val())
-  //console.log(snapshot.child("Players").val())
+  //this should only run if the game is going on i.e. 2 players
   if(snapshot.numChildren()==2)
   {
-    console.log("off for temp");
+    var playerValues=snapshot.child("Players/"+changePlayer(player)).val()
+    //determin if anyone has made a move
+    if(playerValues.word!="none"){
+      
+      $("#player"+changePlayer(player)).parent().removeClass("yellow").addClass("green");
+      otherPlayerMove=playerValues;
+      console.log(otherPlayerMove)
+    }
+    else if(word!="none"){
+      $("#player"+player).parent().removeClass("yellow").addClass("green");
+    }
+    if(snapshot.child("Players/"+player).val().word!="none"&&(playerValues.word!="none")){
+      rps(word,otherPlayerMove);
+
+    }
     //.removeClass("intro").addClass("main");
 
   }
 });
 
+//This on click function will be how each player logs their move
 $(document).on("click",".option",function(){
 
   console.log($(this).text());
 })
+
+/*alanisawesome: {
+    date_of_birth: "June 23, 1912",
+    full_name: "Alan Turing"
+  },
+  gracehop: {
+    date_of_birth: "December 9, 1906",
+    full_name: "Grace Hopper"*/
+
+function rps(word,otherPlayer){
+   var otherplayerNum=changePlayer(player)
+  if(word=="rock"){
+    if(otherPlayer.word=="scissors"){
+      var otherLosses=otherPlayer.losses+1;
+      database.ref("Players").set({
+        player:{
+          name: name,
+          wins:++wins,
+          losses:losses,
+          word:"nonenone",
+        },
+        otherplayerNum:{
+          name: otherPlayer.name,
+          wins: otherPlayer.wins,
+          losses:otherLosses,
+          word:"none",
+        },
+      }) 
+    }
+    else{
+      var otherwins= otherPlayer.wins+1;
+      database.ref("Players").set({
+          player:{
+          name: name,
+          wins:++wins,
+          losses:losses,
+          word:" ",
+        },
+        otherplayerNum:{
+          name: otherPlayer.name,
+          wins: otherwins,
+          losses:otherPlayer.losses,
+          word:" ",
+        }
+      });
+    }
+  }
+  else if(word=="paper"){
+    if(otherPlayerMove=="rock"){
+     var otherLosses=otherPlayer.losses+1
+      database.ref("Players").set({
+        player:{
+          name: name,
+          wins:++wins,
+          losses:losses,
+          word:"none",
+        },
+       otherplayerNum:{
+          name: otherPlayer.name,
+          wins: otherPlayer.wins,
+          losses:otherLosses,
+          word:"none",
+        },
+      }) 
+    }
+    else{
+      var otherwins= otherPlayer.wins+1;
+      database.ref("Players").set({
+          player:{
+          name: name,
+          wins:++wins,
+          losses:losses,
+          word:"none",
+        },
+        otherplayerNum:{
+          name: otherPlayer.name,
+          wins: otherwins,
+          losses:otherPlayer.losses,
+          word:"none",
+        }
+      });
+    }
+  }
+  else{
+    if(otherPlayerMove=="paper"){
+     var otherLosses=otherPlayer.losses+1
+      database.ref("Players").set({
+        player:{
+          name: name,
+          wins:++wins,
+          losses:losses,
+          word:"none",
+        },
+        otherplayerNum:{
+          name: otherPlayer.name,
+          wins: otherPlayer.wins,
+          losses:otherLosses,
+          word:" ",
+        },
+      }) 
+    }
+    else{
+      var otherwins= otherPlayer.wins+1;
+      database.ref("Players").set({
+          player:{
+          name: name,
+          wins:++wins,
+          losses:losses,
+          word:"none",
+        },
+        otherplayerNum:{
+          name: otherPlayer.name,
+          wins: otherwins,
+          losses:otherPlayer.losses,
+          word:"none",
+        }
+      });
+    }
+  }
+}
