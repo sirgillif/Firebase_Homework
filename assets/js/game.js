@@ -205,5 +205,5 @@ database.ref().on("child_changed", function(snapshot) {
 
 $(document).on("click",".option",function(){
 
-  console.log(this.val());
+  console.log($(this).text());
 })
