@@ -60,10 +60,7 @@ $("#addName").on("click", function () {
     losses:losses,
     move:move,
   });
-  var con2=database.ref()
-  // con2.set({
-  //   turn:turn,
-  // })
+ 
   if (player==1) {
     $("#player1").text(name);
     $("#player1").append;
@@ -75,12 +72,16 @@ $("#addName").on("click", function () {
 
   //when the person leaves the site remove them
   con.onDisconnect(onComplete).remove();
-  //con2.onDisconnect().remove()
   //dont refresh the page
   return false;
 })
 
 var onComplete = function(error) {
+    //clear the game if your in a game( or not it should be clearednow)
+    $("#choices"+player).empty();
+    $("#choices"+changePlayer(player)).empty();
+    $("#winLoss"+player).empty();
+    $("#winLoss"+changePlayer(player)).empty();
   if (player==1) {
     console.log(name+" has disconnected");
   }
@@ -166,6 +167,8 @@ function PlayerHandler(snapshot) {
       playerValues=snapshot.child("Players/"+changePlayer(player)).val();
       updateWinLoss(playerValues);
       //change the player's border's color to yellow
+      $("#player"+player).parent().addClass("yellow");
+      $("#player"+changePlayer(player)).parent().addClass("yellow");
     }
   }
 };
@@ -198,12 +201,9 @@ database.ref().on("child_changed", function(snapshot) {
     //.removeClass("intro").addClass("main");
 
   }
-  else{
-    
-  }
-  
 });
-/*This might be relivent as i move into the gameplay
-  ref.on('child_changed', function(childSnapshot, prevChildKey) {
-  ...
-});*/
+
+$(document).on("click",".option",function(){
+
+  console.log($(this).text());
+})
